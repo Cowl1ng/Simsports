@@ -1,0 +1,12 @@
+<h2>Search Games</h2>
+<form action="/games" method="GET">
+<label>Team</label>
+<input type="text" name="name">
+<button type="submit">Search</button>
+</form>
+<br>
+<% games.forEach(game => {  %>
+  <div><%= game.team_a %>, <%= game.odds_a %>, <%= game.team_b %>, <%= game.odds_b %></div>
+  
+<% }) %>
+
