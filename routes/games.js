@@ -21,23 +21,51 @@ router.get('/new', ensureAuthenticated, (req, res) => {
 
 //Create game route
 router.post('/', ensureAuthenticated, async (req, res) =>{
-  const game = new Game ({
+  console.log('Submitting new game')
+  const newGame = new Game ({
     team_a: req.body.team_a,
-    team_b: req.body.team_b,
     odds_a: req.body.odds_a,
-    odds_b: req.body.odds_b
+    team_b: req.body.team_b,
+    odds_b: req.body.odds_b,   
+    odds_draw: req.body.odds_draw,
+    ougoals: req.body.ougoals,
+    odds_ougoals: req.body.odds_ougoals
   })
   try {
-    const newGame = await game.save()
-    console.log(newGame)
-    // res.redirect(`games/${newGame.id}`)
-    res.redirect(`games`)
+    const game_number_max = await Game.find().sort({game_number: -1 }).limit(1)
+    var newGameNumber =  +game_number_max[0]['game_number'] + +1
+    newGame.game_number = newGameNumber
   } catch {
-    res.render('games/new', {
-      game: game,
-      errorMessage: 'Error creating game'
-    })
+      console.log('Failed to get max game number')
+      newGame.game_number = 1
   }
+  // try {
+  //   const game_numb = await Game.find().sort({game_number:-1}).limit(1)
+  //   console.log('Got game number: ')
+  //   console.log(game_numb)
+  // } catch {
+  //   console.log('Failed to get game number')
+  // }
+  
+  newGame.save()
+            .then(game => {
+              req.flash('success_msg', 'Game created')
+              res.redirect('/games')
+            })
+            .catch(err => console.log(err))
+  // try {
+  //   console.log('Saving to database')
+  //   const newGame = await game.save()
+  //   console.log(newGame)
+  //   // res.redirect(`games/${newGame.id}`)
+  //   res.redirect(`games`)
+  // } catch {
+  //   console.log('Error saving to database')
+  //   res.render('games/new', {
+  //     game: game,
+  //     errorMessage: 'Error creating game'
+  //   })
+  // }
 })
 
 module.exports = router

@@ -53,7 +53,4 @@ app.use('/', require('./routes/index'))
 app.use('/users', require('./routes/users'))
 app.use('/games', require('./routes/games'))
 
-
-
-
 app.listen(PORT, console.log(`Server started on port ${PORT}`))

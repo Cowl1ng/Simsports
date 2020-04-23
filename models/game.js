@@ -6,19 +6,43 @@ const gameSchema = new mongoose.Schema ({
     type: String,
     required: true
   },
-  team_b: {
+  odds_a: {
     type: String,
     required: true
   },
-  odds_a: {
+  team_b: {
     type: String,
     required: true
   },
   odds_b: {
     type: String,
     required: true
-  }
+  },
+  draw: {
+    type: Boolean,
+  },
+  odds_draw: {
+    type: String,
+    required: true
+  },
+  ougoals: {
+    type: String,
+  },
+  odds_ougoals: {
+    type: String,
+  },
+  game_number: {
+    type: String
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  complete: {
+    type: Boolean,
+    default: false
+  },
 })
 
-
-module.exports = mongoose.model('Game', gameSchema)
+const Game = mongoose.model('Game', gameSchema)
+module.exports = Game

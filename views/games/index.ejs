@@ -6,7 +6,12 @@
 </form>
 <br>
 <% games.forEach(game => {  %>
-  <div><%= game.team_a %>, <%= game.odds_a %>, <%= game.team_b %>, <%= game.odds_b %></div>
-  
+  <div>Game <%= game.game_number %>
+  <p class="lead mb-3">Team A: <%= game.team_a %> , Odds: <%= game.odds_a %></p>
+  <p class="lead mb-3">Team B: <%= game.team_b %> , Odds: <%= game.odds_a %></p>
+  <p class="lead mb-3">Draw Odds: <%= game.odds_draw %></p>
+  <p class="lead mb-3">Over/Under: <%= game.ougoals %> goals , Odds: <%= game.odds_ougoals %></p>
+  <p class="lead mb-3">Completed: <%= game.complete %></p>
+  </div>
 <% }) %>
 
