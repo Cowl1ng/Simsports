@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const flash = require('connect-flash')
 const session = require('express-session')
 const passport = require('passport')
+const methodOverride = require('method-override')
 
 const PORT = process.env.PORT || 3000
 
@@ -32,6 +33,7 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }))
+app.use(express.static('public'))
 
 // Passport middleware
 app.use(passport.initialize());
@@ -47,6 +49,9 @@ app.use((req, res, next) => {
   res.locals.error = req.flash('error')
   next()
 })
+
+// Method override
+app.use(methodOverride('_method'))
 
 //Routes
 app.use('/', require('./routes/index'))

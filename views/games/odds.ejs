@@ -1,0 +1,22 @@
+<style>
+.custom {
+  width: 150px !important;
+}
+</style>
+<%- include('_headers.ejs') %>
+<h2>Search Games</h2>
+<form action="/games" method="GET">
+<label>Team</label>
+<input type="text" name="name">
+<button type="submit">Search</button>
+</form>
+<br>
+<h2>To do on this page: Find next game to be played<br>Display all lines on that game<br>Find a way for user to click and make a bet<br>also add account info to all pages when logged in</h2>
+<% games.forEach(game => {  %>
+<p>Game <%= game.game_number %>
+  <div class="btn-group btn-group-justified" role="group" aria-label="...">
+  <button type="button" class="glyphicon glyphicon-plus btn-lg custom"><%= game.team_a %>: <%= game.odds_a %></button>
+  <button type="button" class="glyphicon glyphicon-plus btn-lg custom">Draw: <%= game.odds_draw %></button>
+  <button type="button" class="glyphicon glyphicon-plus btn-lg custom"><%= game.team_b %>: <%= game.odds_b %></button>
+</div></p>
+<% }) %>

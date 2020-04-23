@@ -7,7 +7,8 @@ router.get('/', (req, res) => res.render('welcome'))
 //Dashboard
 router.get('/dashboard', ensureAuthenticated, (req, res) => 
 res.render('dashboard' , {
-  name: req.user.name
+  name: req.user.name,
+  balance: req.user.balance
 }))
 
 

@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  balance: {
+    type: Number,
+    default: 500.6
+  },
 })
 
 const User = mongoose.model('User', UserSchema)

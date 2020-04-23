@@ -15,6 +15,7 @@ router.get('/', ensureAuthenticated, async (req, res) => {
   
 })
 
+// Show create game  page route
 router.get('/new', ensureAuthenticated, (req, res) => {
   res.render('games/new', {game: new Game() })
 })
@@ -29,7 +30,8 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
     odds_b: req.body.odds_b,   
     odds_draw: req.body.odds_draw,
     ougoals: req.body.ougoals,
-    odds_ougoals: req.body.odds_ougoals
+    odds_ogoals: req.body.odds_ogoals,
+    odds_ugoals: req.body.odds_ugoals
   })
   try {
     const game_number_max = await Game.find().sort({game_number: -1 }).limit(1)
@@ -38,34 +40,90 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
   } catch {
       console.log('Failed to get max game number')
       newGame.game_number = 1
-  }
-  // try {
-  //   const game_numb = await Game.find().sort({game_number:-1}).limit(1)
-  //   console.log('Got game number: ')
-  //   console.log(game_numb)
-  // } catch {
-  //   console.log('Failed to get game number')
-  // }
-  
+  }  
   newGame.save()
             .then(game => {
               req.flash('success_msg', 'Game created')
               res.redirect('/games')
             })
             .catch(err => console.log(err))
-  // try {
-  //   console.log('Saving to database')
-  //   const newGame = await game.save()
-  //   console.log(newGame)
-  //   // res.redirect(`games/${newGame.id}`)
-  //   res.redirect(`games`)
-  // } catch {
-  //   console.log('Error saving to database')
-  //   res.render('games/new', {
-  //     game: game,
-  //     errorMessage: 'Error creating game'
-  //   })
-  // }
+})
+
+// Betting page test
+router.get('/odds', ensureAuthenticated, async (req, res) => {
+  try {
+    const games = await Game.find({})
+    res.render ('games/odds', {games: games})
+    return(games)  
+  } catch {
+      res.redirect('/')
+      console.log('Failed')
+  }
+  console.log(games)
+  res.redirect('/games')
+})
+
+// Indivdual game route
+router.get('/:id', async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id)
+    res.render('games/show', {game: game })
+  } catch {
+    res.redirect('/games')
+  }
+  res.render('games/show')
+})
+
+router.get('/:id/edit', async (req, res) => {
+  try {
+    const game = await Game.findById(req.params.id)
+    res.render('games/edit', {game: game })
+  } catch {
+    res.redirect('/games')
+  }
+  
+})
+
+router.put('/:id', async (req, res) => {
+  let game
+  try {
+    game = await Game.findById(req.params.id)
+    game.team_a = req.body.team_a
+    game.odds_a = req.body.odds_a
+    game.team_b = req.body.team_b
+    game.odds_b = req.body.odds_b   
+    game.odds_draw = req.body.odds_draw
+    game.ougoals = req.body.ougoals
+    game.odds_ougoals = req.body.odds_ougoals
+    game.number = req.body.game.number
+    await game.save()
+    res.redirect(`/games/${game.id}`)
+  } catch {
+    if(game == null) {
+      res.redirect('/games')
+      console.log('Name null')
+    } else {
+        console.log('Error updating')       
+    }
+  }
+})
+
+router.delete('/:id', async (req, res) => {
+  let game
+  try {
+    game = await Game.findById(req.params.id)
+    await game.remove()
+    res.redirect('/games')
+  } catch {
+    if(game == null) {
+      res.redirect('/games')
+      console.log('Name null')
+    } else {
+        res.redirect(`/games/${game.id}`)
+        console.log('Error deleteing')       
+    }
+  }
+
 })
 
 module.exports = router

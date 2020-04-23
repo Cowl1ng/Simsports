@@ -1,0 +1,10 @@
+<h2> <%= game.team_a %> vs <%= game.team_b %></h2>
+<p class="lead mb-3"><%= game.team_a %> => Odds: <%= game.odds_a %></p>
+  <p class="lead mb-3"><%= game.team_b %> =>  Odds: <%= game.odds_b %></p>
+  <p class="lead mb-3">Draw Odds: <%= game.odds_draw %></p>
+  <p class="lead mb-3">Over/Under: <%= game.ougoals %> goals => Over Odds: <%= game.odds_ogoals %> <br> Under Odds: <%= game.odds_ugoals %></p>
+  <p class="lead mb-3">Completed: <%= game.complete %></p>
+<a href="/games/<%= game.id %>/edit">Edit</a>
+<form method="POST" action = "/games/<%= game.id %>?_method=DELETE">
+  <button type="submit" class="glyphicon glyphicon-plus btn-sm">Delete</button>
+</form>

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+// const Bet = require('./bet')
 
 // Create new schema (tables in sql database)
 const gameSchema = new mongoose.Schema ({
@@ -7,7 +8,7 @@ const gameSchema = new mongoose.Schema ({
     required: true
   },
   odds_a: {
-    type: String,
+    type: Number,
     required: true
   },
   team_b: {
@@ -15,24 +16,24 @@ const gameSchema = new mongoose.Schema ({
     required: true
   },
   odds_b: {
-    type: String,
+    type: Number,
     required: true
   },
   draw: {
     type: Boolean,
   },
   odds_draw: {
-    type: String,
+    type: Number,
     required: true
   },
   ougoals: {
-    type: String,
+    type: Number,
   },
-  odds_ougoals: {
-    type: String,
+  odds_ogoals: {
+    type: Number,
   },
-  game_number: {
-    type: String
+  odds_ugoals: {
+    type: Number,
   },
   date: {
     type: Date,
@@ -41,8 +42,21 @@ const gameSchema = new mongoose.Schema ({
   complete: {
     type: Boolean,
     default: false
-  },
+  }
 })
+
+// // Checks for bets on game before allowing it to be deleted
+// gameSchema.pre('remove', function(next) {
+//   Bet.find({ game: this.id }, (err, bets) => {
+//     if (err) {
+//       next(err)
+//     } else if(bets.length > 0) {
+//       next(new Error('This game has bets on it'))
+//     } else {
+//       next()
+//     }
+//   })
+// })
 
 const Game = mongoose.model('Game', gameSchema)
 module.exports = Game
