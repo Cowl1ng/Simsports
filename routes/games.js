@@ -33,14 +33,6 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
     odds_ogoals: req.body.odds_ogoals,
     odds_ugoals: req.body.odds_ugoals
   })
-  try {
-    const game_number_max = await Game.find().sort({game_number: -1 }).limit(1)
-    var newGameNumber =  +game_number_max[0]['game_number'] + +1
-    newGame.game_number = newGameNumber
-  } catch {
-      console.log('Failed to get max game number')
-      newGame.game_number = 1
-  }  
   newGame.save()
             .then(game => {
               req.flash('success_msg', 'Game created')
