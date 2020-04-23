@@ -53,14 +53,11 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
 router.get('/odds', ensureAuthenticated, async (req, res) => {
   try {
     const games = await Game.find({})
-    res.render ('games/odds', {games: games})
-    return(games)  
+    res.render ('games/odds', {games: games}) 
   } catch {
-      res.redirect('/')
+      res.redirect('/games')
       console.log('Failed')
   }
-  console.log(games)
-  res.redirect('/games')
 })
 
 // Indivdual game route
@@ -71,7 +68,6 @@ router.get('/:id', async (req, res) => {
   } catch {
     res.redirect('/games')
   }
-  res.render('games/show')
 })
 
 router.get('/:id/edit', async (req, res) => {
@@ -95,15 +91,17 @@ router.put('/:id', async (req, res) => {
     game.odds_draw = req.body.odds_draw
     game.ougoals = req.body.ougoals
     game.odds_ougoals = req.body.odds_ougoals
-    game.number = req.body.game.number
+    game.number = req.body.game_number
     await game.save()
     res.redirect(`/games/${game.id}`)
-  } catch {
+  } catch(err) {
     if(game == null) {
       res.redirect('/games')
       console.log('Name null')
+      console.log(err)
     } else {
-        console.log('Error updating')       
+        console.log('Error updating')
+        console.log(err)
     }
   }
 })
