@@ -35,7 +35,8 @@ router.post('/list', ensureAuthenticated, async (req, res) =>{
       type: req.body.bettype,
       stake: req.body.stake,
       user: users.id,
-      game: req.body.gameid
+      game: req.body.gameid,
+      game_title: req.body.game_title
     })
     await newBet.save()
     req.flash('success_msg', 'Bet created')
@@ -83,7 +84,7 @@ router.get('/odds', ensureAuthenticated, async (req, res) => {
 })
 
 // Indivdual game route
-router.get('/:id', async (req, res) => {
+router.get('/:id', ensureAuthenticated, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id)
     var bettype = [game.team_a, game.team_b, "draw", "Over " + game.ougoals + " goals", "Under " + game.ougoals + " goals"]
@@ -98,7 +99,7 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-router.get('/:id/edit', async (req, res) => {
+router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id)
     res.render('games/edit', {game: game })
@@ -108,7 +109,7 @@ router.get('/:id/edit', async (req, res) => {
   
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', ensureAuthenticated, async (req, res) => {
   let game
   try {
     game = await Game.findById(req.params.id)
@@ -133,7 +134,7 @@ router.put('/:id', async (req, res) => {
   }
 })
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', ensureAuthenticated, async (req, res) => {
   let game
   try {
     game = await Game.findById(req.params.id)

@@ -18,6 +18,8 @@
       <option label="<%= bettype[4] %>" value="<%= bettype[4] %>">
     </select>
     <div class="form-group">
-      <input type="text" class="form-control" name="gameid" value="<%= game.id %>" placeholder="<%= game.id %>" hidden>
+      <input type="text" class="form-control" name="gameid" value="<%= game.id %>" placeholder="<%= game.id %>" hidden> 
+      <div class="form-group">
+        <input type="text" class="form-control" name="game_title" value="<%= game.team_a %> vs <%= game.team_b %>" placeholder="<%= game.id %> hidden">
     <button type="submit" class="btn btn-default">Bet</button>
   </form>

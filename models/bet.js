@@ -26,8 +26,11 @@ const BetSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     // required: true,
     ref: 'Game'
-  }
-
+  },
+  game_title: {
+    type: String,
+    // required: true
+  },
 })
 
 const Bet = mongoose.model('Bet', BetSchema)

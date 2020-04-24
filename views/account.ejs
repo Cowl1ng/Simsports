@@ -1,4 +1,14 @@
+<%- include('./games/_headers_public.ejs') %>
+<div class="page-header">
 <h1 class="mt-4">Dashboard</h1>
+</div>
 <p class="lead mb-3">Welcome <%= name %></p>
 <p class="lead mb-3">Your balance is: <%= balance  %></p>
 <a href="/users/logout" class="btn btn-secondary">Logout</a>
+<br><br>
+<h2 class="mt-4">Your bets</h2>
+
+
+<% userBets.forEach(userBet => {  %>
+  <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <%= userBet.game_title %></p>
+<% }) %>
