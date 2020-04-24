@@ -5,7 +5,19 @@
   <p class="lead mb-3">Draw Odds: <%= game.odds_draw %></p>
   <p class="lead mb-3">Over/Under: <%= game.ougoals %> goals => Over Odds: <%= game.odds_ogoals %> <br> Under Odds: <%= game.odds_ugoals %></p>
   <p class="lead mb-3">Completed: <%= game.complete %></p>
-<a href="/games/<%= game.id %>/edit">Edit</a>
-<form method="POST" action = "/games/<%= game.id %>?_method=DELETE">
-  <button type="submit" class="glyphicon glyphicon-plus btn-sm">Delete</button>
-</form>
+  <form action="/games/list" method="POST" class="form-inline">
+    <div class="form-group">
+      <label for="stake">Stake</label>
+      <input type="text" class="form-control" name="stake" placeholder="Stake">
+    </div>
+    <select name="bettype" class="form-control">
+      <option label="<%= bettype[0] %> to win" value="<%= bettype[0] %> to win">
+      <option label="<%= bettype[1] %> to win" value="<%= bettype[1] %> to win">
+      <option label="<%= bettype[2] %>" value="<%= bettype[2] %>">
+      <option label="<%= bettype[3] %>" value="<%= bettype[3] %>">
+      <option label="<%= bettype[4] %>" value="<%= bettype[4] %>">
+    </select>
+    <div class="form-group">
+      <input type="text" class="form-control" name="gameid" value="<%= game.id %>" placeholder="<%= game.id %>" hidden>
+    <button type="submit" class="btn btn-default">Bet</button>
+  </form>

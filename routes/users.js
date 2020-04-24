@@ -81,7 +81,7 @@ router.post('/register', (req, res) => {
 //Login handler
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', {
-    successRedirect: '/games',
+    successRedirect: '/games/list',
     failureRedirect: '/users/login',
     failureFlash: true
   })(req, res, next)

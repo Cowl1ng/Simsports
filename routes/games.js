@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const Game = require('../models/game')
 const { ensureAuthenticated } = require('../config/auth')
+const Bet = require('../models/bet')
+const User = require('../models/User')
 
 // All games route
 router.get('/', ensureAuthenticated, async (req, res) => {
@@ -13,6 +15,34 @@ router.get('/', ensureAuthenticated, async (req, res) => {
       console.log('Failed')
   }
   
+})
+router.get('/list', ensureAuthenticated, async (req, res) => {
+  try {
+    const games = await Game.find({})
+    res.render ('games/index_public', {games: games})  
+  } catch {
+      res.redirect('/')
+      console.log('Failed')
+  }
+  
+})
+// Create bet route
+router.post('/list', ensureAuthenticated, async (req, res) =>{
+  console.log('Submitting new bet')
+  try {
+    const users = await User.findById(req.user.id)
+    const newBet = new Bet ({
+      type: req.body.bettype,
+      stake: req.body.stake,
+      user: users.id,
+      game: req.body.gameid
+    })
+    await newBet.save()
+    req.flash('success_msg', 'Bet created')
+    res.redirect('/games/list')
+  } catch(err) {
+      console.log(err)
+  }
 })
 
 // Show create game  page route
@@ -56,8 +86,14 @@ router.get('/odds', ensureAuthenticated, async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const game = await Game.findById(req.params.id)
-    res.render('games/show', {game: game })
-  } catch {
+    var bettype = [game.team_a, game.team_b, "draw", "Over " + game.ougoals + " goals", "Under " + game.ougoals + " goals"]
+
+    res.render('games/show', {
+      game: game,
+      bettype: bettype
+    })
+  } catch(err) {
+    console.log(err)
     res.redirect('/games')
   }
 })
@@ -83,7 +119,6 @@ router.put('/:id', async (req, res) => {
     game.odds_draw = req.body.odds_draw
     game.ougoals = req.body.ougoals
     game.odds_ougoals = req.body.odds_ougoals
-    game.number = req.body.game_number
     await game.save()
     res.redirect(`/games/${game.id}`)
   } catch(err) {
@@ -115,5 +150,6 @@ router.delete('/:id', async (req, res) => {
   }
 
 })
+
 
 module.exports = router
