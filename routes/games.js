@@ -62,7 +62,8 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
     odds_draw: req.body.odds_draw,
     ougoals: req.body.ougoals,
     odds_ogoals: req.body.odds_ogoals,
-    odds_ugoals: req.body.odds_ugoals
+    odds_ugoals: req.body.odds_ugoals,
+    complete : req.body.completed
   })
   newGame.save()
             .then(game => {
@@ -88,8 +89,7 @@ router.get('/:id', ensureAuthenticated, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id)
     var bettype = [game.team_a, game.team_b, "draw", "Over " + game.ougoals + " goals", "Under " + game.ougoals + " goals"]
-
-    res.render('games/show', {
+      res.render('games/show', {
       game: game,
       bettype: bettype
     })
@@ -120,6 +120,7 @@ router.put('/:id', ensureAuthenticated, async (req, res) => {
     game.odds_draw = req.body.odds_draw
     game.ougoals = req.body.ougoals
     game.odds_ougoals = req.body.odds_ougoals
+    game.complete = req.body.completed
     await game.save()
     res.redirect(`/games/${game.id}`)
   } catch(err) {

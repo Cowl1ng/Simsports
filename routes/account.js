@@ -8,9 +8,7 @@ const { ensureAuthenticated } = require('../config/auth')
 router.get('/', ensureAuthenticated, async (req, res) => {
   try {
     const users = await User.findById(req.user.id)
-    user_id = req.body.id
-    const userBets = await Bet.find({user_id})
-    // res.render('/', {user: user })
+    const userBets = await Bet.find({user: users.id})
     res.render('./account', {
       name: users.name,
       balance: users.balance,

@@ -2,6 +2,11 @@
 <h2>Edit Game</h2>
 <form action="/games/<%= game.id %>?_method=PUT" method="POST">
   <%- include('_form_fields') %>
+  <div class="btn-group" data-toggle="buttons">
+    <label class="btn btn-primary">
+      <input type="checkbox" name="completed" value = "true"> Match completed
+    </label>
+  </div>
   <a href="/games/">Cancel</a>
   <button type="submit">Update</button>
 </form>

@@ -10,5 +10,5 @@
 
 
 <% userBets.forEach(userBet => {  %>
-  <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <%= userBet.game_title %></p>
+  <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <a href="/games/<%= userBet.game %>"><%= userBet.game_title %></a></p>
 <% }) %>
