@@ -8,16 +8,20 @@
 <div class="container" role="navigation">
   <ul class="nav nav-pills">
     <li role="presentation" class="active; nav-link"><a href="/account">Open</a></li>
-    <li role="presentation" class="nav-link"><a href="/account/settled">Settled</a></li>
+    <li role="presentation" class="nav-link"><a href="/account/settledbets">Settled</a></li>
   </ul>
 </nav>
 <br>
 <div>
 <% userBets.forEach(userBet => {  %>
-  <% if(userBet.settled == false) { %>
-  <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <a href="/games/<%= userBet.game %>"><%= userBet.game_title %></a>. If it wins you will win: £ <%= userBet.winnings %></p>
-  <% } else { %>
-  <% } %>
+  <% if(userBet.settled == true) { %>
+  <% if(userBet.win == true) { %>
+    <h4>£ <%= userBet.stake %> bet on <%= userBet.type %></h4>
+    <h5 style="color:yellow;background-color:green">WON: £ <%= userBet.winnings - userBet.stake %></h5>
+    <% } else { %>
+      <h4>£ <%= userBet.stake %> bet on <%= userBet.type %></h4>
+      <h5 style="color:yellow;background-color:red">LOST</h5>
+    <% }} %>  
 <% }) %>
 </div>
 <div>

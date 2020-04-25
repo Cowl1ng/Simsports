@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 
-const BetSchema = new mongoose.Schema({
+const betSchema = new mongoose.Schema({
   type: {
     type: String,
     // required: true
   },
   stake: {
+    type: Number,
+    // required: true
+  },
+  winnings: {
     type: Number,
     // required: true
   },
@@ -31,8 +35,12 @@ const BetSchema = new mongoose.Schema({
     type: String,
     // required: true
   },
+  settled: {
+    type: Boolean,
+    default: false
+  }
 })
 
-const Bet = mongoose.model('Bet', BetSchema)
 
+const Bet = mongoose.model('Bet', betSchema)
 module.exports = Bet

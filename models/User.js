@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+var defaultBalance = 500 // Needs changing in game model as well
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -19,7 +21,7 @@ const UserSchema = new mongoose.Schema({
   },
   balance: {
     type: Number,
-    default: 500,
+    default: defaultBalance,
     required: true
   },
 })

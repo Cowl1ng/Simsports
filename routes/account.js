@@ -4,7 +4,7 @@ const Bet = require('../models/bet')
 const User = require('../models/User')
 const { ensureAuthenticated } = require('../config/auth')
 
-// All bets route
+// Show account info
 router.get('/', ensureAuthenticated, async (req, res) => {
   try {
     const users = await User.findById(req.user.id)
@@ -17,11 +17,62 @@ router.get('/', ensureAuthenticated, async (req, res) => {
   } catch(err) {
     console.log(err)
     res.redirect('/games')
-  }
-  
-  
-  
+  }  
 })
+
+router.delete('/', ensureAuthenticated, async (req, res) => {
+  let bet
+  try {
+    bet = await Bet.findById(req.body.betid)
+    console.log(bet)
+    await bet.remove()
+    res.redirect('/account')
+  } catch (err){
+    if(bet == null) {
+      res.redirect('/account')
+      console.log('Bet null')
+    } else {
+      console.log(err)
+      req.flash('error_msg', 'Cannot delete, game already started')    
+      res.redirect(`/account`)
+        console.log('Error deleteing')       
+    }
+  }
+})
+// Show open bets
+router.get('/openbets', ensureAuthenticated, async (req, res) => {
+  try {
+    const users = await User.findById(req.user.id)
+    const userBets = await Bet.find({user: users.id})
+    res.render('./account', {
+      name: users.name,
+      balance: users.balance,
+      userBets: userBets
+    })
+  } catch(err) {
+    console.log(err)
+    res.redirect('/account')
+  }  
+})
+
+// Show settled bets
+router.get('/settled', ensureAuthenticated, async (req, res) => {
+  try {
+    const users = await User.findById(req.user.id)
+    const userBets = await Bet.find({user: users.id})
+    res.render('./account_settled', {
+      name: users.name,
+      balance: users.balance,
+      userBets: userBets
+    })
+  } catch(err) {
+    console.log(err)
+    res.redirect('/account')
+  }  
+})
+
+
+
 
 // // Show create game  page route
 // router.get('/new', ensureAuthenticated, (req, res) => {
