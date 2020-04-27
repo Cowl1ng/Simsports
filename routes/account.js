@@ -72,8 +72,6 @@ router.get('/settled', ensureAuthenticated, async (req, res) => {
 })
 
 
-
-
 // // Show create game  page route
 // router.get('/new', ensureAuthenticated, (req, res) => {
 //   res.render('games/new', {game: new Game() })

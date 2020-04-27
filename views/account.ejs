@@ -11,11 +11,11 @@
     <li role="presentation" class="nav-link"><a href="/account/settled">Settled</a></li>
   </ul>
 </nav>
-<br>
 <div>
 <% userBets.forEach(userBet => {  %>
   <% if(userBet.settled == false) { %>
-  <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <a href="/games/<%= userBet.game %>"><%= userBet.game_title %></a>. If it wins you will win: £ <%= userBet.winnings %></p>
+  <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <%= userBet.game_title %>. If it wins you will win: £ <%= userBet.winnings %></p>
+  <!-- <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <a href="/games/<%= userBet.game %>"><%= userBet.game_title %></a>. If it wins you will win: £ <%= userBet.winnings %></p> -->
   <% } else { %>
   <% } %>
 <% }) %>

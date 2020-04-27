@@ -102,6 +102,7 @@ gameSchema.post('save', async function(next) {
       }
     }
   })
+  
   User.find({}, (error, users) => {
     for (const user of users) {
       user.balance = defaultBalance

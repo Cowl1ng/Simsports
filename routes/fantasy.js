@@ -1,27 +1,28 @@
 const express = require('express')
 const router = express.Router()
 const Game = require('../models/game')
+const fantasyGame = require('../models/fantasygame')
 const { ensureAuthenticated } = require('../config/auth')
 const Bet = require('../models/bet')
 const User = require('../models/User')
-
+gameWeek = 1
 
 // All games route
 router.get('/', ensureAuthenticated, async (req, res) => {
   try {
-    const games = await Game.find({})
-    res.render ('games/index', {games: games})  
+    const fantasygames = await fantasyGame.find({game_week: gameWeek})
+    res.render ('fantasy/index', {fantasygames: fantasygames})  
   } catch {
       res.redirect('/')
       console.log('Failed')
   }
   
 })
-// Public games list
+// Public games route
 router.get('/list', ensureAuthenticated, async (req, res) => {
   try {
-    const games = await Game.find({})
-    res.render ('games/index_public', {games: games})  
+    const fantasygames = await fantasyGame.find({game_week: gameWeek})
+    res.render ('fantasy/index_public', {fantasygames: fantasygames})  
   } catch {
       res.redirect('/')
       console.log('Failed')
@@ -34,17 +35,13 @@ router.post('/list', ensureAuthenticated, async (req, res) =>{
   var odds = 0
   try {
     const users = await User.findById(req.user.id)
-    const games = await Game.findById(req.body.gameid)
-    if(req.body.bettype == games.team_a + " to win") {
-      odds = games.odds_a
-    } else if(req.body.bettype == games.team_b + " to win") {
-      odds = games.odds_b
+    const fantasygames = await fantasyGame.findById(req.body.gameid)
+    if(req.body.bettype == fantasygames.team_a + " to win") {
+      odds = fantasygames.odds_a
+    } else if(req.body.bettype == fantasygames.team_b + " to win") {
+      odds = fantasygames.odds_b
     } else if(req.body.bettype == "draw") {
-      odds = games.odds_draw
-    } else if(req.body.bettype == "Over " + games.ougoals + " goals") {
-      odds = games.odds_ogoals
-    } else if(req.body.bettype == "Under " + games.ougoals + " goals") {
-      odds = games.odds_ugoals
+      odds = fantasygames.odds_draw
     } else {console.log("Error getting odds")}
     winnings = odds * req.body.stake
     winnings = winnings.toFixed(2)
@@ -68,26 +65,42 @@ router.post('/list', ensureAuthenticated, async (req, res) =>{
 
 // Show create game  page route
 router.get('/new', ensureAuthenticated, (req, res) => {
-  res.render('games/new', {game: new Game() })
+  res.render('fantasy/new', {fantasygame: new fantasyGame() })
+})
+
+// Get week change page
+router.get('/week', ensureAuthenticated, (req, res) => {
+  res.render('fantasy/week', {fantasygame: new fantasyGame() })
+})
+
+// Post week change
+router.post('/new', ensureAuthenticated, async (req, res) => {
+  gameWeek = req.body.game_week
+  console.log(req.body.started)
+  if(req.body.started == 'true'){ 
+    gameStarted = true
+  } else { gameStarted = false }
+  console.log(gameStarted)
+  await fantasyGame.updateMany({game_week: { $lt: gameWeek }}, { $set: { 'completed': true, 'started': gameStarted }})  
+  await fantasyGame.updateMany({game_week: { $gte: gameWeek }}, { $set: { 'completed': false, 'started': gameStarted }})
+  res.redirect('/fantasy')
 })
 
 //Create game route
 router.post('/', ensureAuthenticated, async (req, res) =>{
-  const newGame = new Game ({
+  const newfantasyGame = new fantasyGame ({
     team_a: req.body.team_a,
     odds_a: req.body.odds_a,
     team_b: req.body.team_b,
     odds_b: req.body.odds_b,   
     odds_draw: req.body.odds_draw,
-    ougoals: req.body.ougoals,
-    odds_ogoals: req.body.odds_ogoals,
-    odds_ugoals: req.body.odds_ugoals,
+    game_week: req.body.game_week,
     completed : req.body.completed
   })
-  newGame.save()
-            .then(game => {
-              req.flash('success_msg', 'Game created')
-              res.redirect('/games')
+  newfantasyGame.save()
+            .then(fantasygame => {
+              req.flash('success_msg', 'Fantasy Game created')
+              res.redirect('/fantasy/list')
             })
             .catch(err => console.log(err))
 })
@@ -96,26 +109,25 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
 // Indivdual game route
 router.get('/:id', ensureAuthenticated, async (req, res) => {
   try {
-    const game = await Game.findById(req.params.id)
+    const fantasygame = await fantasyGame.findById(req.params.id)
     const users = await User.findById(req.user.id)
-    const userBets = await Bet.find({user: users.id, game: game.id})
-    var bettype = [game.team_a, game.team_b, "draw", "Over " + game.ougoals + " goals", "Under " + game.ougoals + " goals"]
-    if(game.started == false & game.completed == false){ 
-      res.render('games/show', {
-        game: game,
+    const userBets = await Bet.find({user: users.id, game: fantasygame.id})
+    var bettype = [fantasygame.team_a, fantasygame.team_b, "draw"]
+    if(fantasygame.started == false) { 
+      res.render('fantasy/show', {
+        fantasygame: fantasygame,
         users: users,
         bettype: bettype
       })
-    } else if(game.started == true & game.completed == false) {
-      res.render('games/started', {
-        game: game,
+    } else if(fantasygame.started == true & fantasygame.completed == false) {
+      res.render('fantasy/started', {
+        fantasygame: fantasygame,
         users: users,
         userBets: userBets
       })
     } else {
-
-      res.render('games/completed', {
-        game: game,
+      res.render('fantasy/completed', {
+        fantasygame: fantasygame,
         users: users,
         userBets: userBets
       })
@@ -142,9 +154,9 @@ router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
 router.get('/:id/result', ensureAuthenticated, async (req, res) => {
   try {
     const game = await Game.findById(req.params.id)
-    res.render('games/result', {game: game })
+    res.render('fantasy/result', {fantasygame: fantasygame })
   } catch {
-    res.redirect('/games')
+    res.redirect('/fantasy')
   }
   
 })
