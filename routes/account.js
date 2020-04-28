@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const Bet = require('../models/bet')
 const User = require('../models/User')
+const FantasyBet = require('../models/fantasyBet')
 const { ensureAuthenticated } = require('../config/auth')
 
 // Show account info
@@ -9,10 +10,12 @@ router.get('/', ensureAuthenticated, async (req, res) => {
   try {
     const users = await User.findById(req.user.id)
     const userBets = await Bet.find({user: users.id})
+    const userFantasyBets = await FantasyBet.find({user: users.id})
     res.render('./account', {
       name: users.name,
       balance: users.balance,
-      userBets: userBets
+      userBets: userBets,
+      userFantasyBets: userFantasyBets
     })
   } catch(err) {
     console.log(err)
@@ -44,10 +47,12 @@ router.get('/openbets', ensureAuthenticated, async (req, res) => {
   try {
     const users = await User.findById(req.user.id)
     const userBets = await Bet.find({user: users.id})
+    const userFantasyBets = await FantasyBet.find({user: users.id})
     res.render('./account', {
       name: users.name,
       balance: users.balance,
-      userBets: userBets
+      userBets: userBets,
+      userFantasyBets: userFantasyBets
     })
   } catch(err) {
     console.log(err)
@@ -60,10 +65,12 @@ router.get('/settled', ensureAuthenticated, async (req, res) => {
   try {
     const users = await User.findById(req.user.id)
     const userBets = await Bet.find({user: users.id})
+    const userFantasyBets = await FantasyBet.find({user: users.id})
     res.render('./account_settled', {
       name: users.name,
       balance: users.balance,
-      userBets: userBets
+      userBets: userBets,
+      userFantasyBets: userFantasyBets
     })
   } catch(err) {
     console.log(err)
@@ -71,6 +78,21 @@ router.get('/settled', ensureAuthenticated, async (req, res) => {
   }  
 })
 
+// Show leaderboard
+router.get('/leaderboard', ensureAuthenticated, async (req, res) => {
+  try{
+    const thisUser = await User.findById(req.user.id)
+    const users = await User.find({}).sort({balance: -1})
+    res.render('./account_leaderboard', {
+      name: thisUser.name,
+      balance: thisUser.balance,
+      users: users
+    })
+  } catch(err) {
+    console.log(err)
+    res.redirect('/account')
+  }
+})
 
 // // Show create game  page route
 // router.get('/new', ensureAuthenticated, (req, res) => {

@@ -1,41 +1,68 @@
 const express = require('express')
 const router = express.Router()
 const Game = require('../models/game')
-const fantasyGame = require('../models/fantasygame')
+const FantasyGame = require('../models/fantasyGame')
 const { ensureAuthenticated } = require('../config/auth')
-const Bet = require('../models/bet')
+const FantasyBet = require('../models/fantasyBet')
 const User = require('../models/User')
 gameWeek = 1
 
 // All games route
 router.get('/', ensureAuthenticated, async (req, res) => {
   try {
-    const fantasygames = await fantasyGame.find({game_week: gameWeek})
+    const fantasygames = await FantasyGame.find({game_week: gameWeek})
     res.render ('fantasy/index', {fantasygames: fantasygames})  
   } catch {
       res.redirect('/')
       console.log('Failed')
   }
-  
+})
+
+router.get('/nextweek', ensureAuthenticated, async (req, res) => {
+  try {
+    nextWeek = gameWeek + 1
+    const fantasygames = await FantasyGame.find({game_week: nextWeek})
+    res.render ('fantasy/index_next', {fantasygames: fantasygames})  
+  } catch {
+      res.redirect('/')
+      console.log('Failed')
+  }
 })
 // Public games route
 router.get('/list', ensureAuthenticated, async (req, res) => {
   try {
-    const fantasygames = await fantasyGame.find({game_week: gameWeek})
-    res.render ('fantasy/index_public', {fantasygames: fantasygames})  
+    const fantasygames = await FantasyGame.find({game_week: gameWeek})
+    res.render ('fantasy/index_public', {
+      fantasygames: fantasygames,
+    })  
   } catch {
       res.redirect('/')
       console.log('Failed')
   }
   
 })
+// Next week route
+router.get('/list/nextweek', ensureAuthenticated, async (req, res) => {
+  nextWeek = gameWeek + 1
+  try {
+    const fantasygames = await FantasyGame.find({game_week: nextWeek })
+    res.render ('fantasy/index_public_next', {
+      fantasygames: fantasygames
+    })  
+  } catch {
+      res.redirect('/')
+      console.log('Failed')
+  }
+  
+})
+
 // Create bet route
 router.post('/list', ensureAuthenticated, async (req, res) =>{
   console.log('Submitting new bet')
   var odds = 0
   try {
     const users = await User.findById(req.user.id)
-    const fantasygames = await fantasyGame.findById(req.body.gameid)
+    const fantasygames = await FantasyGame.findById(req.body.gameid)
     if(req.body.bettype == fantasygames.team_a + " to win") {
       odds = fantasygames.odds_a
     } else if(req.body.bettype == fantasygames.team_b + " to win") {
@@ -45,19 +72,19 @@ router.post('/list', ensureAuthenticated, async (req, res) =>{
     } else {console.log("Error getting odds")}
     winnings = odds * req.body.stake
     winnings = winnings.toFixed(2)
-    const newBet = new Bet ({
+    const newFantasyBet = new FantasyBet ({
       type: req.body.bettype,
       stake: req.body.stake,
       winnings: winnings,
       user: users.id,
       game: req.body.gameid,
-      game_title: req.body.game_title
+      game_title: req.body.game_title,
     })
     users.balance -= req.body.stake
     await users.save()
-    await newBet.save()
+    await newFantasyBet.save()
     req.flash('success_msg', 'Bet created')
-    res.redirect('/games/list')
+    res.redirect('/fantasy/list')
   } catch(err) {
       console.log(err)
   }
@@ -65,30 +92,28 @@ router.post('/list', ensureAuthenticated, async (req, res) =>{
 
 // Show create game  page route
 router.get('/new', ensureAuthenticated, (req, res) => {
-  res.render('fantasy/new', {fantasygame: new fantasyGame() })
+  res.render('fantasy/new', {fantasygame: new FantasyGame() })
 })
 
 // Get week change page
 router.get('/week', ensureAuthenticated, (req, res) => {
-  res.render('fantasy/week', {fantasygame: new fantasyGame() })
+  res.render('fantasy/week', {fantasygame: new FantasyGame() })
 })
 
 // Post week change
 router.post('/new', ensureAuthenticated, async (req, res) => {
   gameWeek = req.body.game_week
-  console.log(req.body.started)
   if(req.body.started == 'true'){ 
     gameStarted = true
   } else { gameStarted = false }
-  console.log(gameStarted)
-  await fantasyGame.updateMany({game_week: { $lt: gameWeek }}, { $set: { 'completed': true, 'started': gameStarted }})  
-  await fantasyGame.updateMany({game_week: { $gte: gameWeek }}, { $set: { 'completed': false, 'started': gameStarted }})
+  await FantasyGame.updateMany({game_week: { $lt: gameWeek }}, { $set: { 'completed': true, 'started': gameStarted }})  
+  await FantasyGame.updateMany({game_week: { $gte: gameWeek }}, { $set: { 'completed': false, 'started': gameStarted }})
   res.redirect('/fantasy')
 })
 
 //Create game route
 router.post('/', ensureAuthenticated, async (req, res) =>{
-  const newfantasyGame = new fantasyGame ({
+  const newFantasyGame = new FantasyGame ({
     team_a: req.body.team_a,
     odds_a: req.body.odds_a,
     team_b: req.body.team_b,
@@ -97,7 +122,7 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
     game_week: req.body.game_week,
     completed : req.body.completed
   })
-  newfantasyGame.save()
+  newFantasyGame.save()
             .then(fantasygame => {
               req.flash('success_msg', 'Fantasy Game created')
               res.redirect('/fantasy/list')
@@ -109,43 +134,43 @@ router.post('/', ensureAuthenticated, async (req, res) =>{
 // Indivdual game route
 router.get('/:id', ensureAuthenticated, async (req, res) => {
   try {
-    const fantasygame = await fantasyGame.findById(req.params.id)
+    const fantasygame = await FantasyGame.findById(req.params.id)
     const users = await User.findById(req.user.id)
-    const userBets = await Bet.find({user: users.id, game: fantasygame.id})
+    const userFantasyBets = await FantasyBet.find({user: users.id, game: fantasygame.id})
     var bettype = [fantasygame.team_a, fantasygame.team_b, "draw"]
-    if(fantasygame.started == false) { 
+    if(fantasygame.completed == true) {
+      res.render('fantasy/completed', {
+        fantasygame: fantasygame,
+        users: users,
+        userBets: userFantasyBets
+      })
+    } else if(fantasygame.started == true) {
+      res.render('fantasy/started', {
+        fantasygame: fantasygame,
+        users: users,
+        userBets: userFantasyBets
+      })
+    } else { 
       res.render('fantasy/show', {
         fantasygame: fantasygame,
         users: users,
         bettype: bettype
       })
-    } else if(fantasygame.started == true & fantasygame.completed == false) {
-      res.render('fantasy/started', {
-        fantasygame: fantasygame,
-        users: users,
-        userBets: userBets
-      })
-    } else {
-      res.render('fantasy/completed', {
-        fantasygame: fantasygame,
-        users: users,
-        userBets: userBets
-      })
     }
-
+    
   } catch(err) {
     console.log(err)
-    res.redirect('/games')
+    res.redirect('/fantasy')
   }
 })
 
 // Page to edit betting lines on game
 router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
   try {
-    const game = await Game.findById(req.params.id)
-    res.render('games/edit', {game: game })
+    const fantasygame = await FantasyGame.findById(req.params.id)
+    res.render('fantasy/edit', {fantasygame: fantasygame })
   } catch {
-    res.redirect('/games')
+    res.redirect('/fantasy')
   }
   
 })
@@ -153,7 +178,7 @@ router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
 // Page to edit result of game
 router.get('/:id/result', ensureAuthenticated, async (req, res) => {
   try {
-    const game = await Game.findById(req.params.id)
+    const fantasygame = await FantasyGame.findById(req.params.id)
     res.render('fantasy/result', {fantasygame: fantasygame })
   } catch {
     res.redirect('/fantasy')
@@ -162,22 +187,17 @@ router.get('/:id/result', ensureAuthenticated, async (req, res) => {
 })
 // Request to edit result of game in mongodb
 router.put('/:id/completed', ensureAuthenticated, async (req, res) => {
-  let game
+  let fantasygame
   try {
-    game = await Game.findById(req.params.id)
-    game.team_a_goals = req.body.team_a_goals
-    game.team_b_goals = req.body.team_b_goals
-    game.yellow_cards = req.body.yellow_cards
-    game.red_card = req.body.red_card
-    if(req.body.red_card == null) {
-      game.red_card = false
-    }
-    game.completed = true
-    await game.save()
-    res.redirect(`/games/${game.id}`)
+    fantasygame = await FantasyGame.findById(req.params.id)
+    fantasygame.team_a_points = req.body.team_a_points
+    fantasygame.team_b_points = req.body.team_b_points
+    fantasygame.completed = true
+    await fantasygame.save()
+    res.redirect(`/fantasy/${fantasygame.id}`)
   } catch(err) {
     if(game == null) {
-      res.redirect('/games')
+      res.redirect('/fantasy')
       console.log('Name null')
       console.log(err)
     } else {
@@ -191,34 +211,32 @@ router.put('/:id/completed', ensureAuthenticated, async (req, res) => {
 router.put('/:id', ensureAuthenticated, async (req, res) => {
   let game
   try {
-    game = await Game.findById(req.params.id)
-    game.team_a = req.body.team_a
-    game.odds_a = req.body.odds_a
-    game.team_b = req.body.team_b
-    game.odds_b = req.body.odds_b   
-    game.odds_draw = req.body.odds_draw
-    game.ougoals = req.body.ougoals
-    game.odds_ougoals = req.body.odds_ougoals
-    game.started = req.body.started
-    game.completed = req.body.completed
+    fantasygame = await FantasyGame.findById(req.params.id)
+    fantasygame.team_a = req.body.team_a
+    fantasygame.odds_a = req.body.odds_a
+    fantasygame.team_b = req.body.team_b
+    fantasygame.odds_b = req.body.odds_b   
+    fantasygame.odds_draw = req.body.odds_draw
+    fantasygame.started = req.body.started
+    fantasygame.completed = req.body.completed
     if(req.body.started == null) {
-      game.started = false
+      fantasygame.started = false
     }
     if(req.body.completed == null) {
-      game.completed = false
+      fantasygame.completed = false
     }
-    await game.save()
-    res.redirect(`/games/${game.id}`)
+    await fantasygame.save()
+    res.redirect(`/fantasy/${fantasygame.id}`)
   } catch(err) {
-    if(game == null) {
-      res.redirect('/games')
+    if(fantasygame == null) {
+      res.redirect('/fantasy')
       console.log('Name null')
       console.log(err)
     } else {
         console.log('Error updating')
         console.log(err)
         req.flash('error_msg', 'Cannot update, bets already placed')  
-      res.redirect(`/games/${game.id}`)
+      res.redirect(`/fantasy/${fantasygame.id}`)
     }
   }
 })
@@ -228,15 +246,15 @@ router.delete('/:id', ensureAuthenticated, async (req, res) => {
   try {
     game = await Game.findById(req.params.id)
     await game.remove()
-    res.redirect('/games')
+    res.redirect('/fantasy')
   } catch (err){
     if(game == null) {
-      res.redirect('/games')
+      res.redirect('/fantasy')
       console.log('Name null')
     } else {
       console.log(err)
       req.flash('error_msg', 'Cannot delete, bets already placed')  
-      res.redirect(`/games/${game.id}`)
+      res.redirect(`/fantasy/${game.id}`)
       console.log('Error deleteing')       
     }
   }

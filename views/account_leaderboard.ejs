@@ -13,18 +13,9 @@
   </ul>
 </nav>
 <div>
-<% userBets.forEach(userBet => {  %>
-  <% if(userBet.settled == false) { %>
-  <p class="lead mb-3">£ <%= userBet.stake %> bet on <%= userBet.type %> for the game <a href="/games/<%= userBet.game %>"><%= userBet.game_title %></a>. If it wins you will win: £ <%= userBet.winnings %></p>
-  <% } %>
+<% users.forEach(user => {  %>
+  <h4><%= user.username %> : £ <%= user.balance %></h4>
 <% }) %>
-<h3>Fantasy Bets</h3>
-<% userFantasyBets.forEach(userFantasyBet => {  %>
-  <% if(userFantasyBet.settled == false) { %>
-  <p class="lead mb-3">£ <%= userFantasyBet.stake %> bet on <%= userFantasyBet.type %> for the game <a href="/games/<%= userFantasyBet.game %>"><%= userFantasyBet.game_title %></a>. If it wins you will win: £ <%= userFantasyBet.winnings %></p>
-  <% } %>
-<% }) %>
-
 </div>
 <div>
 <a href="/users/logout" class="btn btn-secondary">Logout</a>

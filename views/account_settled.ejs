@@ -17,9 +17,20 @@
   <% if(userBet.settled == true) { %>
   <% if(userBet.win == true) { %>
     <h4>£ <%= userBet.stake %> bet on <%= userBet.type %></h4>
-    <h5 style="color:yellow;background-color:green">WON: £ <%= userBet.winnings - userBet.stake %></h5>
+    <h5 style="color:yellow;background-color:green">WON: £ <%= userBet.winnings%></h5>
     <% } else { %>
       <h4>£ <%= userBet.stake %> bet on <%= userBet.type %></h4>
+      <h5 style="color:yellow;background-color:red">LOST</h5>
+    <% }} %>  
+<% }) %>
+<h3>Fantasy Bets</h3>
+<% userFantasyBets.forEach(userFantasyBet => {  %>
+  <% if(userFantasyBet.settled == true) { %>
+  <% if(userFantasyBet.win == true) { %>
+    <h4>£ <%= userFantasyBet.stake %> bet on <%= userFantasyBet.type %></h4>
+    <h5 style="color:yellow;background-color:green">WON: £ <%= userFantasyBet.winnings %></h5>
+    <% } else { %>
+      <h4>£ <%= userFantasyBet.stake %> bet on <%= userFantasyBet.type %></h4>
       <h5 style="color:yellow;background-color:red">LOST</h5>
     <% }} %>  
 <% }) %>

@@ -6,6 +6,7 @@
 <button type="submit">Search</button>
 </form>
 <br>
+
 <% game_number = 1 %>
 <% games.forEach(game => {  %>
   <div id="container">
@@ -16,13 +17,7 @@
   <p class="lead mb-3">Over/Under: <%= game.ougoals %> goals => Over Odds: <%= game.odds_ogoals %> <br> Under Odds: <%= game.odds_ugoals %></p>
   <p class="lead mb-3">Started: <%= game.started %></p>
   <p class="lead mb-3">Completed: <%= game.completed %></p>
-  </form>
   </div>
   <% game_number += 1 %>
-  <!-- <table class="table table-bordered">
-    <tr>
-     
-    </tr>
-  </table> -->
  <% }) %>
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const betSchema = new mongoose.Schema({
+const FantasyBetSchema = new mongoose.Schema({
   type: {
     type: String,
     // required: true
@@ -29,7 +29,7 @@ const betSchema = new mongoose.Schema({
   game: {
     type: mongoose.Schema.Types.ObjectId,
     // required: true,
-    ref: 'Game'
+    ref: 'FantasyGame'
   },
   game_title: {
     type: String,
@@ -42,5 +42,5 @@ const betSchema = new mongoose.Schema({
 })
 
 
-const Bet = mongoose.model('Bet', betSchema)
-module.exports = Bet
+const FantasyBet = mongoose.model('FantasyBet', FantasyBetSchema)
+module.exports = FantasyBet

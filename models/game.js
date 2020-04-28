@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const Bet = require('./bet')
+const FantasyBet = require('./fantasyBet')
 const User = require('./User')
+const FantasyGame = require('./fantasyGame')
 defaultBalance = 500
 
 // Create new schema (tables in sql database)
@@ -81,7 +83,7 @@ gameSchema.pre('remove', function(next) {
 })
 
 gameSchema.post('save', async function(next) {
-  Bet.find({ game: this.id }, (error, bets) => {
+  await Bet.find({ game: this.id }, (error, bets) => {
     var bettype = [this.team_a + " to win", this.team_b + " to win", "draw", "Over " + this.ougoals + " goals", "Under " + this.ougoals + " goals"]
     for (const bet of bets) {
       if(this.completed == true) {
@@ -103,11 +105,30 @@ gameSchema.post('save', async function(next) {
     }
   })
   
-  User.find({}, (error, users) => {
+  User.find({}, async (error, users) => {
     for (const user of users) {
       user.balance = defaultBalance
       winnings = 0
-      Bet.find({ user: user.id }, (error, bets) => {
+      await Bet.find({ user: user.id }, (error, bets) => {
+        for (bet of bets) {
+          if (bet.settled == true & bet.win == true) {
+            winnings += bet.winnings - bet.stake
+          } else {
+            winnings -= bet.stake
+          }
+          user.balance += winnings
+          winnings = 0
+          user.balance = user.balance.toFixed(2)
+        }
+        User.findOneAndUpdate({ _id: user.id} , { balance: user.balance})
+        .catch(err => console.log(err))
+      })
+    }
+  })
+  User.find({}, async (error, users) => {
+    for (const user of users) {
+      winnings = 0
+      await FantasyBet.find({ user: user.id }, (error, bets) => {
         for (bet of bets) {
           if (bet.settled == true & bet.win == true) {
             winnings += bet.winnings - bet.stake
